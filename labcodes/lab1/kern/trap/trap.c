@@ -31,8 +31,6 @@ static struct pseudodesc idt_pd = {
     sizeof(idt) - 1, (uintptr_t)idt
 };
 
-extern uintptr_t __vectors[];
-
 /* idt_init - initialize IDT to each of the entry points in kern/trap/vectors.S */
 void
 idt_init(void) {
@@ -84,10 +82,11 @@ struct gatedesc {
     (gate).gd_off_31_16 = (uint32_t)(off) >> 16;        \
 }*/
 
+	extern uintptr_t __vectors[];
 	int i;
 	for(i = 0; i < 256; i++)
 	{
-		SETGATE(idt[i], 0, GD_KTEXT, __vector[i], DPL_KERNEL);
+		SETGATE(idt[i], 0, GD_KTEXT, __vectors[i], DPL_KERNEL);
 	}
 
 	lidt(&idt_pd);

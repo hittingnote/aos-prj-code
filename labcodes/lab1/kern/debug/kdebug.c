@@ -305,11 +305,13 @@ print_stackframe(void) {
 
 	uint32_t ebp_v = read_ebp();
 	uint32_t eip_v = read_eip();
+	struct eipdebuginfo info;
+	int err;
 
 	int i, j;
 	for(j = 0; j < STACKFRAME_DEPTH; j++)
 	{
-		cprintf("ebp:0x%08x eip:0x%08x");
+		cprintf("ebp:0x%08x eip:0x%08x", ebp_v, eip_v);
 
 		cprintf(" args");
 
@@ -328,7 +330,13 @@ print_stackframe(void) {
 
 		cprintf("\n");
 
+//		struct eipdebuginfo info;
+		err = debuginfo_eip(eip_v, &info) != 0;
 		print_debuginfo(eip_v-1);
+		if(err != 0)
+		{
+			break;
+		}
 
 		eip_v = *((uint32_t*)(ebp_v+4));
 		ebp_v = *((uint32_t*)ebp_v);
