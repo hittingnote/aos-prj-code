@@ -148,6 +148,7 @@ print_regs(struct pushregs *regs) {
 static void
 trap_dispatch(struct trapframe *tf) {
     char c;
+	struct trapframe switchk2u, *switchu2k;
 
     switch (tf->tf_trapno) {
     case IRQ_OFFSET + IRQ_TIMER:
