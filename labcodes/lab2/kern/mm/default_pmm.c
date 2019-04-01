@@ -136,8 +136,8 @@ default_alloc_pages(size_t n) {
         }
     }
     if (page != NULL) {
-        SetPageReserved(page)
-        ClearPageProperty(page)
+        SetPageReserved(page);
+        ClearPageProperty(page);
         list_del(&(page->page_link));
         if (page->property > n) {
             struct Page *p = page + n;
