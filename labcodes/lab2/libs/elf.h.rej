@@ -1,0 +1,11 @@
+--- lab1/libs/elf.h	2019-04-01 21:29:48.779705137 +0800
++++ lab2/libs/elf.h	2019-04-01 21:29:48.783705137 +0800
+@@ -3,7 +3,7 @@
+ 
+ #include <defs.h>
+ 
+-#define ELF_MAGIC    0x464C457FU            // "\x7FELF" in little endian
++#define ELF_MAGIC   0x464C457FU         // "\x7FELF" in little endian
+ 
+ /* file header */
+ struct elfhdr {

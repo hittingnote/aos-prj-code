@@ -1,0 +1,10 @@
+--- lab1/kern/debug/kdebug.h	2019-04-01 21:29:48.779705137 +0800
++++ lab2/kern/debug/kdebug.h	2019-04-01 21:29:48.783705137 +0800
+@@ -2,6 +2,7 @@
+ #define __KERN_DEBUG_KDEBUG_H__
+ 
+ #include <defs.h>
++#include <trap.h>
+ 
+ void print_kerninfo(void);
+ void print_stackframe(void);

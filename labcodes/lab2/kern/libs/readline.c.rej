@@ -1,0 +1,16 @@
+--- lab1/kern/libs/readline.c	2019-04-01 21:29:48.779705137 +0800
++++ lab2/kern/libs/readline.c	2019-04-01 21:29:48.783705137 +0800
+@@ -1,11 +1,11 @@
+ #include <stdio.h>
+ 
+-#define BUFSIZE    1024
++#define BUFSIZE 1024
+ static char buf[BUFSIZE];
+ 
+ /* *
+  * readline - get a line from stdin
+- * @prompt:        the string to be written to stdout
++ * @prompt:     the string to be written to stdout
+  *
+  * The readline() function will write the input string @prompt to
+  * stdout first. If the @prompt is NULL or the empty string,
