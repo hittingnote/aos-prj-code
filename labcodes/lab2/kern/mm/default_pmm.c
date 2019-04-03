@@ -180,6 +180,15 @@ default_free_pages(struct Page *base, size_t n) {
         }
     }
     nr_free += n;
+    le = list_next(&free_list);
+    while (le != &free_list) {
+        p = le2page(le, page_link);
+        if (base + base->property <= p) {
+            assert(base + base->property != p);
+            break;
+        }
+        le = list_next(le);
+    }
     list_add_after(&free_list, &(base->page_link));
 }
 
