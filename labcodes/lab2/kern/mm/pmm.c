@@ -361,7 +361,7 @@ get_pte(pde_t *pgdir, uintptr_t la, bool create) {
 #endif
 
     pde_t *pdep = pgdir + PDX(la);      // Find page directory entry
-    if(*pde_t & PTE_P == false) {        // If entry is not present
+    if(*pdep & PTE_P == false) {        // If entry is not present
         if(create == false) {
             return NULL;
         }
