@@ -396,7 +396,25 @@ do_pgfault(struct mm_struct *mm, uint32_t error_code, uintptr_t addr) {
         }
    }
 #endif
-   ret = 0;
+
+    ptep = get_pte(mm->pgdir, addr, 1);
+    if(ptep == NULL) {
+        cprintf("get_pte in do_pgfault failed.\n");
+        goto failed;
+    }
+    if(*ptep == 0) {
+        /*struct Page *page;
+        page = alloc_page();
+        if(page == NULL) {
+            cprintf("alloc_page in do_pgfault failed.\n")
+            goto failed;
+        }*/
+        if(pgdir_alloc_page(mm->pgdir, addr, perm) == NULL) {
+            cprintf("pgdir_alloc_page in do_pgfault failed.\n");
+            goto failed;
+        }
+    }
+    ret = 0;
 failed:
     return ret;
 }
