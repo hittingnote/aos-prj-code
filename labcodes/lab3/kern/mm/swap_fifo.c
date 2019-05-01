@@ -70,12 +70,12 @@ _fifo_swap_out_victim(struct mm_struct *mm, struct Page ** ptr_page, int in_tick
      //(2)  assign the value of *ptr_page to the addr of this page
      list_entry_t *prev = head->prev;
      if(prev == head) {
-         cprintf("_fifo_swap_out_victim: list empty.\n")
+         cprintf("_fifo_swap_out_victim: list empty.\n");
          return 0;
      }
      ptr_page = le2page(prev, pra_page_link);
      
-     list_del(head, prev);
+     list_del(prev);
      
      return 0;
 }
