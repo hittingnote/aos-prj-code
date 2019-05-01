@@ -175,7 +175,7 @@ extern struct mm_struct *check_mm_struct;
 static void
 trap_dispatch(struct trapframe *tf) {
     char c;
-
+	struct trapframe switchk2u, *switchu2k;
     int ret;
 
     switch (tf->tf_trapno) {
