@@ -68,14 +68,21 @@ _fifo_swap_out_victim(struct mm_struct *mm, struct Page ** ptr_page, int in_tick
      /*LAB3 EXERCISE 2: YOUR CODE*/ 
      //(1)  unlink the  earliest arrival page in front of pra_list_head qeueue
      //(2)  assign the value of *ptr_page to the addr of this page
-     list_entry_t *prev = head->prev;
+/*     list_entry_t *prev = head->prev;
      if(prev == head) {
          cprintf("_fifo_swap_out_victim: list empty.\n");
          return 0;
      }
      ptr_page = le2page(prev, pra_page_link);
      
-     list_del(prev);
+     list_del(prev);*/
+     list_entry_t *le = head->prev;
+     assert(head!=le);
+     struct Page *p = le2page(le, pra_page_link);
+     list_del(le);
+     assert(p !=NULL);
+     *ptr_page = p;
+
      
      return 0;
 }
