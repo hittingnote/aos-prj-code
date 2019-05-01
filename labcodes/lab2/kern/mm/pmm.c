@@ -361,7 +361,7 @@ get_pte(pde_t *pgdir, uintptr_t la, bool create) {
 #endif
 
     pde_t *pdep = pgdir + PDX(la);      // Find page directory entry
-    if(*pdep & PTE_P == 0) {        // If entry is not present
+    if((*pdep & PTE_P) == 0) {        // If entry is not present
         if(create == 0) {
             return NULL;
         }
@@ -422,7 +422,7 @@ page_remove_pte(pde_t *pgdir, uintptr_t la, pte_t *ptep) {
     }
 #endif
 
-    if(*ptep & PTE_P == 1) {     // If this page table entry is present
+    if((*ptep & PTE_P) == 1) {     // If this page table entry is present
         struct Page *page = pte2page(*ptep);
         if(page_ref_dec(page) == 0) {
             free_page(page);
