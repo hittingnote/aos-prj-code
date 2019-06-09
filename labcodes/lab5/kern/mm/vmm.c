@@ -512,34 +512,23 @@ do_pgfault(struct mm_struct *mm, uint32_t error_code, uintptr_t addr) {
         }
     }
     else {
-        struct Page *page=NULL;
-        cprintf("do pgfault: ptep %x, pte %x\n",ptep, *ptep);
-        if (*ptep & PTE_P) {
-            //if process write to this existed readonly page (PTE_P means existed), then should be here now.
-            //we can implement the delayed memory space copy for fork child process (AKA copy on write, COW).
-            //we didn't implement now, we will do it in future.
-            panic("error write a non-writable pte");
-            //page = pte2page(*ptep);
-        } else{
-           // if this pte is a swap entry, then load data from disk to a page with phy addr
-           // and call page_insert to map the phy addr with logical addr
-           if(swap_init_ok) {               
-               if ((ret = swap_in(mm, addr, &page)) != 0) {
-                   cprintf("swap_in in do_pgfault failed\n");
-                   goto failed;
-               }    
-
-           }  
-           else {
+        if(swap_init_ok) {
+            struct Page *page = NULL;
+            if(swap_in(mm, addr, &page) != 0) {
+                cprintf("swap_in in do_pgdefault failed.\n");
+                goto failed;
+            }
+            page_insert(mm->pgdir, page, addr, perm);
+//            page->pra_vaddr = addr;
+            swap_map_swappable(mm, addr, page, 1);
+            page->pra_vaddr = addr;
+        }
+        else {
             cprintf("no swap_init_ok but ptep is %x, failed\n",*ptep);
             goto failed;
-           }
-       } 
-       page_insert(mm->pgdir, page, addr, perm);
-       swap_map_swappable(mm, addr, page, 1);
-       page->pra_vaddr = addr;
-   }
-   ret = 0;
+        }
+    }
+	ret = 0;
 failed:
     return ret;
 }
