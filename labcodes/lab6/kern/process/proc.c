@@ -127,6 +127,14 @@ alloc_proc(void) {
 	    proc->cptr = NULL;
 	    proc->yptr = NULL;
 	    proc->optr = NULL;
+	    proc->rq = NULL;
+	    list_init(&(proc->run_link));
+	    proc->time_slice = 0;
+	    proc->lab6_run_pool.left = NULL;
+	    proc->lab6_run_pool.right = NULL;
+	    proc->lab6_run_pool.parent = NULL;
+	    proc->lab6_stride = NULL;
+	    proc->lab6_priority = 0;
 	 
      //LAB6 YOUR CODE : (update LAB5 steps)
     /*
