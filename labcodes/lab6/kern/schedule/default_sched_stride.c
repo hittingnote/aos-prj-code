@@ -143,7 +143,9 @@ stride_pick_next(struct run_queue *rq) {
     
     struct proc_struct *p = NULL;
     #if USE_SKEW_HEAP
-        p = le2proc(rq->lab6_run_pool, lab6_run_pool);
+        if(rq->lab6_run_pool != NULL) {
+            p = le2proc(rq->lab6_run_pool, lab6_run_pool);
+        }
     #else
         {
             list_entry_t le = &(rq->run_list);
@@ -157,7 +159,14 @@ stride_pick_next(struct run_queue *rq) {
     #endif  /* #if USE_SKEW_HEAP */
     
     if(p != NULL) {
-        p->lab6_stride += BIG_STRIDE / p->lab6_priority;
+//        p->lab6_stride += BIG_STRIDE / p->lab6_priority;
+
+        if(p->lab6_priority == 0) {
+            p->lab6_stride += BIG_STRIDE;
+        }
+        else {
+            p->lab6_stride += BIG_STRIDE / p->lab6_priority;
+        }
     }
     
     return p;
