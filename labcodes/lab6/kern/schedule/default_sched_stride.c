@@ -71,10 +71,6 @@ stride_enqueue(struct run_queue *rq, struct proc_struct *proc) {
       * (3) set proc->rq pointer to rq
       * (4) increase rq->proc_num
       */
-      
-    list_add(&(rq->run_list), &(proc->run_link));
-    skew_heap_insert(rq->lab6_run_pool, &(proc->lab6_run_pool),
-                        proc_stride_comp_f);
     
     #if USE_SKEW_HEAP
         rq->lab6_run_pool = skew_heap_insert(rq->lab6_run_pool,
@@ -108,6 +104,19 @@ stride_dequeue(struct run_queue *rq, struct proc_struct *proc) {
       *         skew_heap_remove: remove a entry from skew_heap
       *         list_del_init: remove a entry from the  list
       */
+      
+    #if USE_SKEW_HEAP
+        rq->lab6_run_pool = skew_heap_remove(rq->lab6_run_pool,
+                                        &(proc->lab6_run_pool),
+                                        proc_stride_comp_f);
+    #else
+//        assert(!list_empty(&(rq->run_list)));
+        assert(!list_empty(&(proc->run_link)) && proc->rq == rq);
+        list_del(&(proc->run_link));
+    #endif  /* #if USE_SKEW_HEAP */
+    
+    rq->proc_num -= 1;
+//    proc->rq = NULL;
 }
 /*
  * stride_pick_next pick the element from the ``run-queue'', with the
