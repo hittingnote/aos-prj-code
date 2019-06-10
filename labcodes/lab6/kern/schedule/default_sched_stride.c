@@ -71,6 +71,25 @@ stride_enqueue(struct run_queue *rq, struct proc_struct *proc) {
       * (3) set proc->rq pointer to rq
       * (4) increase rq->proc_num
       */
+      
+    list_add(&(rq->run_list), &(proc->run_link));
+    skew_heap_insert(rq->lab6_run_pool, &(proc->lab6_run_pool),
+                        proc_stride_comp_f);
+    
+    #if USE_SKEW_HEAP
+        rq->lab6_run_pool = skew_heap_insert(rq->lab6_run_pool,
+                                        &(proc->lab6_run_pool),
+                                        proc_stride_comp_f);
+    #else
+        assert(list_empty(&(proc->run_link)));
+        list_add(&(rq->run_list), &(proc->run_link));
+    #endif  /* #if USE_SKEW_HEAP */
+//    proc->time_slice = rq->max_time_slice;
+    if(proc->time_slice == 0 || proc->time_slice > rq->max_time_slice) {
+        proc->time_slice = rq->max_time_slice;
+    }
+    rq->proc_num += 1;
+    proc->rq = rq;
 }
 
 /*
