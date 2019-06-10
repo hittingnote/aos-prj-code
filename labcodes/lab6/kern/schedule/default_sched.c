@@ -43,7 +43,7 @@ stride_init(struct run_queue *rq) {
       */
     
     list_init(&(rq->run_list));
-    proc->lab6_run_pool = NULL;
+    rq->lab6_run_pool = NULL;
     rq->proc_num = 0;
 }
 
