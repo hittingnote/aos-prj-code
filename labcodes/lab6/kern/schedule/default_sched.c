@@ -148,9 +148,9 @@ stride_pick_next(struct run_queue *rq) {
         }
     #else
         {
-            list_entry_t le = &(rq->run_list);
+            list_entry_t* le = &(rq->run_list);
             while((le=list_next(le)) != &(rq->run_list)) {
-                proc_struct *this_elem = le2proc(le, list_link);
+                struct proc_struct *this_elem = le2proc(le, list_link);
                 if(p == NULL || this_elem->lab6_stride - p->lab6_stride < 0) {
                     p = this_elem;
                 }
