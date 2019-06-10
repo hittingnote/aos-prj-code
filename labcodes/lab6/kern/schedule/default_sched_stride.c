@@ -151,7 +151,7 @@ stride_pick_next(struct run_queue *rq) {
             list_entry_t le = &(rq->run_list);
             while((le=list_next(le)) != &(rq->run_list)) {
                 proc_struct *this_elem = le2proc(le, list_link);
-                if(p == NULL || this_elem->lab6_stride < p->lab6_stride) {
+                if(p == NULL || this_elem->lab6_stride - p->lab6_stride < 0) {
                     p = this_elem;
                 }
             }
@@ -183,6 +183,12 @@ stride_pick_next(struct run_queue *rq) {
 static void
 stride_proc_tick(struct run_queue *rq, struct proc_struct *proc) {
      /* LAB6: YOUR CODE */
+    if(proc->time_slice > 0) {
+        proc->time_slice--;
+    }
+    if(proc->time_slice == 0) {
+        proc->need_resched = 1;
+    }
 }
 
 struct sched_class default_sched_class = {
