@@ -232,6 +232,8 @@ trap_dispatch(struct trapframe *tf) {
          * (3) Too Simple? Yes, I think so!
          */
 
+        sched_class_proc_tick(current);
+        
 		ticks = ticks + 1;
 		if(ticks >= TICK_NUM)
 		{
@@ -239,7 +241,7 @@ trap_dispatch(struct trapframe *tf) {
 //			print_ticks();
 //			assert(current != NULL);
 //			current->need_resched = 1;
-			sched_class_proc_tick(current);
+//			sched_class_proc_tick(current);
 		}
 
         /* LAB5 YOUR CODE */
