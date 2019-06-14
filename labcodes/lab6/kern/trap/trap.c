@@ -231,16 +231,6 @@ trap_dispatch(struct trapframe *tf) {
          * (2) Every TICK_NUM cycle, you can print some info using a funciton, such as print_ticks().
          * (3) Too Simple? Yes, I think so!
          */
-
-		ticks = ticks + 1;
-		if(ticks >= TICK_NUM)
-		{
-			ticks = 0;
-//			print_ticks();
-//			assert(current != NULL);
-			current->need_resched = 1;
-		}
-
         /* LAB5 YOUR CODE */
         /* you should upate you lab1 code (just add ONE or TWO lines of code):
          *    Every TICK_NUM cycle, you should set current process's current->need_resched = 1
@@ -250,6 +240,9 @@ trap_dispatch(struct trapframe *tf) {
          * IMPORTANT FUNCTIONS:
 	     * sched_class_proc_tick
          */
+		ticks ++;
+        assert(current != NULL);
+        sched_class_proc_tick(current);
         break;
     case IRQ_OFFSET + IRQ_COM1:
         c = cons_getc();
