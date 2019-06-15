@@ -208,8 +208,8 @@ void phi_put_forks_condvar(int i) {
      // test left and right neighbors
      
      state_condvar[i] = THINKING;
-     phi_test_condvar[LEFT];
-     phi_test_condvar[RIGHT];
+     phi_test_condvar(LEFT);
+     phi_test_condvar(RIGHT);
      
 //--------leave routine in monitor--------------
      if(mtp->next_count>0)
