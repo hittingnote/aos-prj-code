@@ -744,6 +744,50 @@ load_icode(int fd, int argc, char **kargv) {
      }
      sysfile_close(fd);
      
+     vm_flags = VM_READ | VM_WRITE | VM_STACK;
+     ret = mm_map(mm, USTACKTOP-USTACKSIZE, USTACKSIZE, vm_flags, NULL);
+     if(ret != 0) {
+         goto bad_mmap_exit;
+     }
+     
+     assert(pgdir_alloc_page(mm->pgdir, USTACKTOP-PGSIZE , PTE_USER) != NULL);
+     assert(pgdir_alloc_page(mm->pgdir, USTACKTOP-2*PGSIZE , PTE_USER) != NULL);
+     assert(pgdir_alloc_page(mm->pgdir, USTACKTOP-3*PGSIZE , PTE_USER) != NULL);
+     assert(pgdir_alloc_page(mm->pgdir, USTACKTOP-4*PGSIZE , PTE_USER) != NULL);
+     
+     mm_count_inc(mm);
+     current->mm = mm;
+     current->cr3 = PADDR(mm->pgdir);
+     lcr3(PADDR(mm->pgdir));
+     
+     uint32_t argv_size = 0, i;
+     for(i = 0; i < argc; i++) {
+         argv_size += strnlen(kargv[i],EXEC_MAX_ARG_LEN + 1)+1;
+     }
+     
+     uintptr_t stacktop = USTACKTOP - (argv_size/sizeof(long)+1)*sizeof(long);
+     char **uargv = (char **)(stacktop - argc*sizeof(char*));
+     
+     argv_size = 0;
+     for(i = 0; i < argc; i++) {
+         uargv[i] = strcpy((char*)(stacktop + argv_size), kargv[i]);
+         argv_size += strnlen(kargv[i], EXEC_MAX_ARG_LEN+1) + 1;
+     }
+     
+     stacktop = (uintptr_t)uargv - sizeof(int);
+     *(int*)stacktop = argc;
+     
+     struct trapframe *tf = current->tf;
+     memset(tf, 0, sizeof(struct trapframe));
+     tf->tf_cs = USER_CS;
+     tf->tf_ds = USER_DS;
+     tf->tf_es = USER_DS;
+     tf->tf_ss = USER_DS;
+     tf->tf_esp = stacktop;
+     tf->tf_eip = elf->e_entry;
+     tf->tf_eflags = FL_IF;
+     return 0;
+     
      bad_mmap_exit:
         exit_mmap(mm);
      bad_pgdir_destroy:
