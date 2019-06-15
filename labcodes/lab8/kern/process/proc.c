@@ -636,13 +636,132 @@ load_icode(int fd, int argc, char **kargv) {
      * (7) setup trapframe for user environment
      * (8) if up steps failed, you should cleanup the env.
      */
+     
+     struct mm_struct *mm;
+     if((mm = mm_create()) == NULL) {
+         goto error_return;
+     }
+     
+     if(setup_pgdir(mm) != 0) {
+         goto bad_mm_destroy;
+     }
+     
+     struct elfhdr __elf, *elf = &__elf;
+     if(load_icode_read(fd, elf, sizeof(struct elfhdr), 0) != 0) {
+         goto bad_pgdir_destroy;
+     }
+     
+     if(elf->e_magic != ELF_MAGIC) {
+         goto bad_pgdir_destroy;
+     }
+     
+     struct proghdr __ph, *ph = &__ph;
+     uint32_t vm_flags, perm, phnum;
+     for(phnum = 0; phnum < elf->e_phnum; phnum++) {
+         off_t phoff = elf->e_phoff + sizeof(struct proghdr)*phnum;
+         if(load_icode_read(fd, ph, sizeof(struct proghdr), phoff) != 0) {
+             goto bad_pgdir_destroy;
+         }
+         if(ph->p_type != ELF_PT_LOAD) {
+             continue;
+         }
+         if(ph->p_filesz > ph->p_memsz) {
+             goto bad_pgdir_destroy;
+         }
+         if(ph->p_filesz == 0) {
+             continue;
+         }
+         
+         vm_flags = 0;
+         perm = PTE_U;
+         if(ph->p_flags & ELF_PF_X) {
+             vm_flags |= VM_EXEC;
+         }
+         if(ph->p_flags & ELF_PF_W) {
+             vm_flags |= VM_WRITE;
+         }
+         if(ph->p_flags & ELF_PF_R) {
+             vm_flags |= VM_READ;
+         }
+         if(vm_flags & VM_WRITE) {
+             perm |= PTE_W;
+         }
+         if(mm_map(mm, ph->p_va, ph->p_memsz, vm_flags, NULL) != 0) {
+             goto bad_mmap_exit;
+         }
+         
+         off_t offset = ph->p_offset;
+         size_t off, size;
+         uintptr_t start = ph->p_va;
+         uintptr_t end;
+         uintptr_t la = ROUNDDOWN(start, PGSIZE);
+         
+         end = ph->p_va + ph->p_filesz;
+         while(start < end) {
+             if((page = pgdir_alloc_page(mm->pgdir, la, perm)) == NULL) {
+                 goto bad_mmap_exit;
+             }
+             off = start - la;
+             size = PGSIZE - off;
+             la += PGSIZE;
+             if(end < la) {
+                 size -= la - end;
+             }
+             if(load_icode_read(fd, page2kva(page)+off, size, offset) != 0) {
+                 goto bad_mmap_exit;
+             }
+             start += size;
+             offset += size;
+         }
+         end = ph->p_va + ph->p_memsz;
+         
+         if(start < la) {
+             if(start == end) {
+                 continue;
+             }
+             off = start + PGSIZE - la;
+             size = PGSIZE - off;
+             if(end < la) {
+                 size -= la - end;
+             }
+             memset(page2kva(page)+off, 0, size);
+             start += size;
+             assert((end < la && start == end) || (end >= la && start == la));
+         }
+         while(start < end) {
+             if((page = pgdir_alloc_page(mm->pgdir, la, perm)) == NULL) {
+                 goto bad_mmap_exit;
+             }
+             off = start - la;
+             size = PGSIZE - off;
+             la += PGSIZE;
+             if(end < la) {
+                 size -= la - end;
+             }
+             memset(page2kva(page)+off, 0, size);
+             start += size;
+         }
+     }
+     sysfile_close(fd);
+     
+     bad_mmap_exit:
+        exit_mmap(mm);
+     bad_pgdir_destroy:
+        put_pgdir(mm);
+     bad_mm_destroy:
+        mm_destroy(mm);
+     error_return:
+        return -1;
 }
 
 // this function isn't very correct in LAB8
 static void
 put_kargv(int argc, char **kargv) {
-    while (argc > 0) {
+/*    while (argc > 0) {
         kfree(kargv[-- argc]);
+    }*/
+    while ((argc--) > 0) {
+        kfree(kargv[argc]);
     }
 }
 
