@@ -747,8 +747,7 @@ load_icode(int fd, int argc, char **kargv) {
      sysfile_close(fd);
      
      vm_flags = VM_READ | VM_WRITE | VM_STACK;
-     ret = mm_map(mm, USTACKTOP-USTACKSIZE, USTACKSIZE, vm_flags, NULL);
-     if(ret != 0) {
+     if(mm_map(mm, USTACKTOP-USTACKSIZE, USTACKSIZE, vm_flags, NULL) != 0) {
          goto bad_mmap_exit;
      }
      
