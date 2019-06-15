@@ -655,6 +655,8 @@ load_icode(int fd, int argc, char **kargv) {
          goto bad_pgdir_destroy;
      }
      
+     struct Page *page;
+     
      struct proghdr __ph, *ph = &__ph;
      uint32_t vm_flags, perm, phnum;
      for(phnum = 0; phnum < elf->e_phnum; phnum++) {
